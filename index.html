@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Empresa de Comidas Rápidas</title>
+<style>
+    body { font-family: Arial; margin: 20px; background: #f4f4f4; }
+    h2 { color: #333; }
+    .card { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+    label { display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px 15px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+    .btn-editar { background: #ffa500; }
+    .btn-eliminar { background: #e63946; color: white; }
+</style>
+</head>
+<body>
+
+<h2>Gestión de Pedidos - Comidas Rápidas</h2>
+
+<div class="card">
+    <h3>Registrar Pedido</h3>
+    <label>Nombre del Cliente</label>
+    <input id="nombre" type="text" />
+
+    <label>Cédula</label>
+    <input id="cedula" type="text" />
+
+    <label>Producto</label>
+    <select id="producto">
+        <option>Perro caliente</option>
+        <option>Hamburguesa</option>
+        <option>Papas fritas</option>
+        <option>Salchipapa</option>
+        <option>Alas rellenas</option>
+    </select>
+
+    <label>Bebida</label>
+    <select id="bebida">
+        <option>Coca Cola</option>
+        <option>Pepsi</option>
+        <option>Colombiana</option>
+        <option>Uva</option>
+        <option>Manzana</option>
+    </select>
+
+    <label>Cantidad</label>
+    <input id="cantidad" type="number" min="1" />
+
+    <button onclick="guardarPedido()">Guardar Pedido</button>
+</div>
+
+<div class="card">
+    <h3>Pedidos Registrados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Producto</th>
+                <th>Bebida</th>
+                <th>Cantidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaPedidos"></tbody>
+    </table>
+</div>
+
+<script>
+let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+let editIndex = null;
+
+function mostrarPedidos() {
+    const tabla = document.getElementById("tablaPedidos");
+    tabla.innerHTML = "";
+
+    pedidos.forEach((p, index) => {
+        tabla.innerHTML += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${p.cedula}</td>
+                <td>${p.producto}</td>
+                <td>${p.bebida}</td>
+                <td>${p.cantidad}</td>
+                <td>
+                    <button class="btn-editar" onclick="editarPedido(${index})">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarPedido(${index})">Eliminar</button>
+                </td>
+            </tr>`;
+    });
+}
+
+function guardarPedido() {
+    const nombre = document.getElementById("nombre").value;
+    const cedula = document.getElementById("cedula").value;
+    const producto = document.getElementById("producto").value;
+    const bebida = document.getElementById("bebida").value;
+    const cantidad = document.getElementById("cantidad").value;
+
+    if (!nombre || !cedula || !cantidad) {
+        alert("Por favor complete todos los campos.");
+        return;
+    }
+
+    const nuevoPedido = { nombre, cedula, producto, bebida, cantidad };
+
+    if (editIndex !== null) {
+        pedidos[editIndex] = nuevoPedido;
+        editIndex = null;
+    } else {
+        pedidos.push(nuevoPedido);
+    }
+
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    limpiarFormulario();
+    mostrarPedidos();
+}
+
+function editarPedido(index) {
+    const p = pedidos[index];
+    document.getElementById("nombre").value = p.nombre;
+    document.getElementById("cedula").value = p.cedula;
+    document.getElementById("producto").value = p.producto;
+    document.getElementById("bebida").value = p.bebida;
+    document.getElementById("cantidad").value = p.cantidad;
+    editIndex = index;
+}
+
+function eliminarPedido(index) {
+    pedidos.splice(index, 1);
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+    mostrarPedidos();
+}
+
+function limpiarFormulario() {
+    document.getElementById("nombre").value = "";
+    document.getElementById("cedula").value = "";
+    document.getElementById("cantidad").value = "";
+}
+
+mostrarPedidos();
+</script>
+
+</body>
+</html>
